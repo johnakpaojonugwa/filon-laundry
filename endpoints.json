@@ -184,7 +184,7 @@
         "body": {
           "fullname": "string",
           "email": "email",
-          "phoneNumber": "string",
+          "phone_number": "string",
           "password": "string",
           "role": "string",
           "branchId": "string"
@@ -200,7 +200,7 @@
         "method": "GET",
         "path": "/users/customers",
         "auth": true,
-        "roles": ["super_admin", "branch_manager", "STAFF"]
+        "roles": ["super_admin", "branch_manager", "staff"]
       },
       "getOwnProfile": {
         "method": "GET",
@@ -214,7 +214,7 @@
         "body": {
           "fullname": "string (optional)",
           "email": "email (optional)",
-          "phoneNumber": "string (optional)",
+          "phone_number": "string (optional)",
           "address": "string (optional)",
           "avatar": "file (optional)"
         }
@@ -257,7 +257,7 @@
         "body": {
           "fullname": "string",
           "email": "email",
-          "phoneNumber": "string",
+          "phone_number": "string",
           "password": "string",
           "branchId": "string"
         }
@@ -386,7 +386,7 @@
         "method": "PATCH",
         "path": "/orders/:orderId/status",
         "auth": true,
-        "roles": ["super_admin", "branch_manager", "STAFF"],
+        "roles": ["super_admin", "branch_manager", "staff"],
         "pathParams": { "orderId": "string" },
         "body": {
           "status": "string (pending|processing|washing|drying|ironing|ready|delivered|cancelled)"
@@ -466,7 +466,7 @@
           "fullname": "string",
           "email": "email",
           "password": "string",
-          "phoneNumber": "string",
+          "phone_number": "string",
           "designation": "string",
           "department": "string",
           "branchId": "string"
@@ -597,8 +597,8 @@
   "roles": {
     "super_admin": "Full system access",
     "branch_manager": "Branch-level access",
-    "STAFF": "Limited operational access",
-    "CUSTOMER": "Self-service only"
+    "staff": "Limited operational access",
+    "customer": "Self-service only"
   },
   "rateLimiting": {
     "authEndpoints": "3 requests per 15 minutes for token refresh, other auth endpoints use the general rate limiter",
