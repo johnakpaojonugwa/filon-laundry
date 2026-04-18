@@ -1,0 +1,607 @@
+{
+  "version": "2.0",
+  "baseURL": "http://localhost:3000/api/v1",
+  "authentication": "JWT Bearer Token in Authorization header",
+  "lastUpdated": "2026-04-18",
+  "analytics": {
+    "note": "All analytics endpoints now use live queries directly from the database for real-time accuracy. No pre-computed analytics storage is required."
+  },
+  "endpoints": {
+    "Dashboard": {
+      "getDashboardSummary": {
+        "method": "GET",
+        "path": "/analytics/dashboard",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "queryParams": {
+          "branchId": { "type": "string", "required": false, "description": "Filter analytics by branch" }
+        }
+      },
+      "getPeriodAnalytics": {
+        "method": "GET",
+        "path": "/analytics/period",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "queryParams": {
+          "startDate": { "type": "string", "required": false, "format": "YYYY-MM-DD" },
+          "endDate": { "type": "string", "required": false, "format": "YYYY-MM-DD" },
+          "branchId": { "type": "string", "required": false }
+        }
+      },
+      "getDailyAnalytics": {
+        "method": "GET",
+        "path": "/analytics/daily",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "queryParams": {
+          "date": { "type": "string", "required": false, "format": "YYYY-MM-DD", "note": "defaults to today" },
+          "branchId": { "type": "string", "required": false }
+        }
+      },
+      "getOrderTrends": {
+        "method": "GET",
+        "path": "/analytics/orders/trends",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "queryParams": {
+          "startDate": { "type": "string", "required": false, "format": "YYYY-MM-DD" },
+          "endDate": { "type": "string", "required": false, "format": "YYYY-MM-DD" },
+          "branchId": { "type": "string", "required": false }
+        }
+      },
+      "getRevenueAnalytics": {
+        "method": "GET",
+        "path": "/analytics/revenue",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "queryParams": {
+          "startDate": { "type": "string", "required": false, "format": "YYYY-MM-DD" },
+          "endDate": { "type": "string", "required": false, "format": "YYYY-MM-DD" },
+          "branchId": { "type": "string", "required": false }
+        }
+      },
+      "getCustomerAnalytics": {
+        "method": "GET",
+        "path": "/analytics/customers",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "queryParams": {
+          "startDate": { "type": "string", "required": false, "format": "YYYY-MM-DD" },
+          "endDate": { "type": "string", "required": false, "format": "YYYY-MM-DD" },
+          "branchId": { "type": "string", "required": false }
+        }
+      },
+      "exportDashboardPDF": {
+        "method": "POST",
+        "path": "/analytics/export/pdf",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "body": {
+          "dashboardData": "object",
+          "dateRange": { "startDate": "string", "endDate": "string" }
+        },
+        "response": "PDF file"
+      }
+    },
+    "Authentication": {
+      "register": {
+        "method": "POST",
+        "path": "/auth/sign-up",
+        "auth": false,
+        "body": {
+          "fullname": "string",
+          "email": "email",
+          "phone_number": "string",
+          "password": "string (min 8 chars, uppercase, lowercase, number, special char)",
+          "confirm_password": "string"
+        },
+        "response": {
+          "user": "object",
+          "accessToken": "string",
+          "refreshToken": "string"
+        }
+      },
+      "login": {
+        "method": "POST",
+        "path": "/auth/login",
+        "auth": false,
+        "body": {
+          "email": "email",
+          "password": "string"
+        },
+        "response": {
+          "user": "object",
+          "accessToken": "string",
+          "refreshToken": "string"
+        }
+      },
+      "refreshToken": {
+        "method": "POST",
+        "path": "/auth/refresh-token",
+        "auth": false,
+        "body": {
+          "refreshToken": "string"
+        },
+        "response": {
+          "accessToken": "string",
+          "refreshToken": "string"
+        }
+      },
+      "logout": {
+        "method": "POST",
+        "path": "/auth/logout",
+        "auth": true,
+        "body": {
+          "refreshToken": "string"
+        }
+      },
+      "forgotPassword": {
+        "method": "POST",
+        "path": "/auth/forgot-password",
+        "auth": false,
+        "body": {
+          "email": "email"
+        }
+      },
+      "resetPassword": {
+        "method": "PATCH",
+        "path": "/auth/reset-password/:token",
+        "auth": false,
+        "body": {
+          "password": "string (min 8 chars)",
+          "confirm_password": "string"
+        }
+      },
+      "changePassword": {
+        "method": "PATCH",
+        "path": "/auth/change-password",
+        "auth": true,
+        "body": {
+          "currentPassword": "string",
+          "newPassword": "string (min 8 chars, uppercase, lowercase, number, special char)",
+          "confirmPassword": "string"
+        },
+        "response": {
+          "success": "boolean",
+          "message": "string"
+        }
+      }
+    },
+    "System": {
+      "apiDocs": {
+        "method": "GET",
+        "path": "/docs",
+        "auth": false,
+        "description": "Swagger UI documentation"
+      }
+    },
+    "Users": {
+      "createUser": {
+        "method": "POST",
+        "path": "/users",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "body": {
+          "fullname": "string",
+          "email": "email",
+          "phoneNumber": "string",
+          "password": "string",
+          "role": "string",
+          "branchId": "string"
+        }
+      },
+      "getAllUsers": {
+        "method": "GET",
+        "path": "/users",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"]
+      },
+      "getCustomers": {
+        "method": "GET",
+        "path": "/users/customers",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager", "STAFF"]
+      },
+      "getOwnProfile": {
+        "method": "GET",
+        "path": "/users/me",
+        "auth": true
+      },
+      "updateOwnProfile": {
+        "method": "PUT",
+        "path": "/users/me",
+        "auth": true,
+        "body": {
+          "fullname": "string (optional)",
+          "email": "email (optional)",
+          "phoneNumber": "string (optional)",
+          "address": "string (optional)",
+          "avatar": "file (optional)"
+        }
+      },
+      "getUserById": {
+        "method": "GET",
+        "path": "/users/:userId",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "pathParams": { "userId": "string" }
+      },
+      "updateUser": {
+        "method": "PUT",
+        "path": "/users/:userId",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "pathParams": { "userId": "string" }
+      },
+      "softDeleteUser": {
+        "method": "PATCH",
+        "path": "/users/:userId/status",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "pathParams": { "userId": "string" }
+      },
+      "deleteUser": {
+        "method": "DELETE",
+        "path": "/users/:userId",
+        "auth": true,
+        "roles": ["super_admin"],
+        "pathParams": { "userId": "string" }
+      }
+    },
+    "Branch Managers": {
+      "createBranchManager": {
+        "method": "POST",
+        "path": "/branch-managers",
+        "auth": true,
+        "roles": ["super_admin"],
+        "body": {
+          "fullname": "string",
+          "email": "email",
+          "phoneNumber": "string",
+          "password": "string",
+          "branchId": "string"
+        }
+      },
+      "getBranchManagers": {
+        "method": "GET",
+        "path": "/branch-managers",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"]
+      },
+      "getBranchManagerById": {
+        "method": "GET",
+        "path": "/branch-managers/:userId",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "pathParams": { "userId": "string" }
+      },
+      "updateBranchManager": {
+        "method": "PUT",
+        "path": "/branch-managers/:userId",
+        "auth": true,
+        "roles": ["super_admin"],
+        "pathParams": { "userId": "string" }
+      },
+      "deleteBranchManager": {
+        "method": "DELETE",
+        "path": "/branch-managers/:userId",
+        "auth": true,
+        "roles": ["super_admin"],
+        "pathParams": { "userId": "string" }
+      }
+    },
+    "Branches": {
+      "createBranch": {
+        "method": "POST",
+        "path": "/branch",
+        "auth": true,
+        "roles": ["super_admin"],
+        "body": {
+          "name": "string",
+          "address": {
+            "street": "string",
+            "city": "string",
+            "state": "string"
+          },
+          "email": "email",
+          "contact_number": "string",
+          "services_offered": ["string"]
+        }
+      },
+      "getAllBranches": {
+        "method": "GET",
+        "path": "/branch",
+        "auth": true
+      },
+      "getBranchById": {
+        "method": "GET",
+        "path": "/branch/:branchId",
+        "auth": true,
+        "pathParams": { "branchId": "string" }
+      },
+      "updateBranch": {
+        "method": "PUT",
+        "path": "/branch/:branchId",
+        "auth": true,
+        "roles": ["super_admin"],
+        "pathParams": { "branchId": "string" }
+      },
+      "deleteBranch": {
+        "method": "DELETE",
+        "path": "/branch/:branchId",
+        "auth": true,
+        "roles": ["super_admin"],
+        "pathParams": { "branchId": "string" }
+      }
+    },
+    "Orders": {
+      "createOrder": {
+        "method": "POST",
+        "path": "/orders",
+        "auth": true,
+        "roles": [],
+        "body": {
+          "branchId": "string",
+          "customerId": "string (optional)",
+          "customer_name": "string (required if customerId is absent)",
+          "customer_phone": "string (required if customerId is absent)",
+          "items": [
+            {
+              "item_type": "string",
+              "quantity": "number (min 1)",
+              "unit_price": "number (min 0)"
+            }
+          ],
+          "priority": "string (normal|express|urgent)",
+          "status": "string (optional)"
+        }
+      },
+      "getAllOrders": {
+        "method": "GET",
+        "path": "/orders",
+        "auth": true
+      },
+      "getSingleOrder": {
+        "method": "GET",
+        "path": "/orders/:orderId",
+        "auth": true,
+        "pathParams": { "orderId": "string" }
+      },
+      "updateOrder": {
+        "method": "PUT",
+        "path": "/orders/:orderId",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "pathParams": { "orderId": "string" },
+        "body": "order fields"
+      },
+      "markOrderPaid": {
+        "method": "PUT",
+        "path": "/orders/:orderId/mark-paid",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "pathParams": { "orderId": "string" }
+      },
+      "updateOrderStatus": {
+        "method": "PATCH",
+        "path": "/orders/:orderId/status",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager", "STAFF"],
+        "pathParams": { "orderId": "string" },
+        "body": {
+          "status": "string (pending|processing|washing|drying|ironing|ready|delivered|cancelled)"
+        }
+      },
+      "deleteOrder": {
+        "method": "DELETE",
+        "path": "/orders/:orderId",
+        "auth": true,
+        "roles": ["super_admin"],
+        "pathParams": { "orderId": "string" }
+      }
+    },
+    "Inventory": {
+      "getLowStockItems": {
+        "method": "GET",
+        "path": "/inventory/low-stock",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"]
+      },
+      "addInventoryItem": {
+        "method": "POST",
+        "path": "/inventory",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "body": {
+          "branchId": "string",
+          "item_name": "string",
+          "category": "string",
+          "current_stock": "number",
+          "unit": "string",
+          "reorder_level": "number",
+          "supplier": "string (optional)",
+          "cost_per_unit": "number (optional)"
+        }
+      },
+      "getInventoryByBranch": {
+        "method": "GET",
+        "path": "/inventory/branch/:branchId",
+        "auth": true,
+        "pathParams": { "branchId": "string" }
+      },
+      "updateInventoryItem": {
+        "method": "PUT",
+        "path": "/inventory/:itemId",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "pathParams": { "itemId": "string" }
+      },
+      "adjustStock": {
+        "method": "PATCH",
+        "path": "/inventory/:itemId/adjust",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "pathParams": { "itemId": "string" },
+        "body": {
+          "amount": "number (non-zero)",
+          "change_type": "string (restock|usage|adjustment|damage|lost)",
+          "reason": "string"
+        }
+      },
+      "deleteInventoryItem": {
+        "method": "DELETE",
+        "path": "/inventory/:itemId",
+        "auth": true,
+        "roles": ["super_admin"],
+        "pathParams": { "itemId": "string" }
+      }
+    },
+    "Employees": {
+      "onboardEmployee": {
+        "method": "POST",
+        "path": "/employees",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "body": {
+          "fullname": "string",
+          "email": "email",
+          "password": "string",
+          "phoneNumber": "string",
+          "designation": "string",
+          "department": "string",
+          "branchId": "string"
+        }
+      },
+      "getAllEmployees": {
+        "method": "GET",
+        "path": "/employees",
+        "auth": true
+      },
+      "getEmployeeByUserId": {
+        "method": "GET",
+        "path": "/employees/user/:userId",
+        "auth": true,
+        "pathParams": { "userId": "string" }
+      },
+      "getEmployee": {
+        "method": "GET",
+        "path": "/employees/:employeeId",
+        "auth": true,
+        "pathParams": { "employeeId": "string" }
+      },
+      "updateEmployee": {
+        "method": "PUT",
+        "path": "/employees/:employeeId",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "pathParams": { "employeeId": "string" }
+      },
+      "terminateEmployee": {
+        "method": "POST",
+        "path": "/employees/:employeeId/terminate",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "pathParams": { "employeeId": "string" }
+      },
+      "deleteEmployee": {
+        "method": "DELETE",
+        "path": "/employees/:employeeId",
+        "auth": true,
+        "roles": ["super_admin"],
+        "pathParams": { "employeeId": "string" }
+      }
+    },
+    "Notifications": {
+      "getNotifications": {
+        "method": "GET",
+        "path": "/notifications",
+        "auth": true
+      },
+      "markNotificationAsRead": {
+        "method": "PUT",
+        "path": "/notifications/:notificationId/read",
+        "auth": true,
+        "pathParams": { "notificationId": "string" }
+      },
+      "markAllNotificationsAsRead": {
+        "method": "PUT",
+        "path": "/notifications/mark-all-read",
+        "auth": true
+      },
+      "deleteNotification": {
+        "method": "DELETE",
+        "path": "/notifications/:notificationId",
+        "auth": true,
+        "pathParams": { "notificationId": "string" }
+      },
+      "getLowStockAlerts": {
+        "method": "GET",
+        "path": "/notifications/low-stock/alerts",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"]
+      },
+      "resolveLowStockAlert": {
+        "method": "PUT",
+        "path": "/notifications/low-stock/alerts/:alertId/resolve",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "pathParams": { "alertId": "string" }
+      },
+      "manuallyTriggerLowStockCheck": {
+        "method": "POST",
+        "path": "/notifications/low-stock/check",
+        "auth": true,
+        "roles": ["super_admin"]
+      }
+    },
+    "Invoices": {
+      "createInvoice": {
+        "method": "POST",
+        "path": "/invoices",
+        "auth": true,
+        "roles": ["super_admin", "branch_manager"],
+        "body": {
+          "orderId": "string"
+        }
+      },
+      "getMyInvoices": {
+        "method": "GET",
+        "path": "/invoices/my-invoices",
+        "auth": true
+      },
+      "getInvoiceById": {
+        "method": "GET",
+        "path": "/invoices/:id",
+        "auth": true,
+        "pathParams": { "id": "string" }
+      },
+      "downloadInvoice": {
+        "method": "GET",
+        "path": "/invoices/:id/download",
+        "auth": true,
+        "pathParams": { "id": "string" },
+        "response": "PDF file"
+      }
+    }
+  },
+  "httpStatusCodes": {
+    "200": "Success",
+    "201": "Created",
+    "400": "Bad Request (validation errors)",
+    "401": "Unauthorized (missing/invalid token)",
+    "403": "Forbidden (insufficient permissions)",
+    "404": "Not Found",
+    "409": "Conflict (duplicate entries)",
+    "500": "Server Error"
+  },
+  "roles": {
+    "super_admin": "Full system access",
+    "branch_manager": "Branch-level access",
+    "STAFF": "Limited operational access",
+    "CUSTOMER": "Self-service only"
+  },
+  "rateLimiting": {
+    "authEndpoints": "3 requests per 15 minutes for token refresh, other auth endpoints use the general rate limiter",
+    "otherEndpoints": "100 requests per 15 minutes"
+  }
+}
