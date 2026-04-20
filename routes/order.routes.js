@@ -8,6 +8,7 @@ import {
     deleteOrder,
     markOrderPaid
 } from "../controllers/order.controller.js";
+import { getInvoiceByOrderId } from "../controllers/invoice.controller.js";
 import { auth, authorize } from "../middlewares/authMiddleware.js";
 import { validateCreateOrder, handleValidationErrors } from '../middlewares/validationMiddleware.js';
 import { auditLog } from "../middlewares/auditMiddleware.js";
@@ -23,6 +24,9 @@ router.post('/', validateCreateOrder, handleValidationErrors, asyncHandler(creat
 
 // Get orders
 router.get('/', asyncHandler(getOrders));
+
+// Get order invoice for a specific order
+router.get('/:orderId/invoice', asyncHandler(getInvoiceByOrderId));
 
 // Get single order
 router.get('/:orderId', asyncHandler(getOrderById));

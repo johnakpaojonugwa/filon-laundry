@@ -157,9 +157,9 @@
         "path": "/auth/change-password",
         "auth": true,
         "body": {
-          "currentPassword": "string",
-          "newPassword": "string (min 8 chars, uppercase, lowercase, number, special char)",
-          "confirmPassword": "string"
+          "current_password": "string",
+          "new_password": "string (min 8 chars, uppercase, lowercase, number, special char)",
+          "confirm_password": "string"
         },
         "response": {
           "success": "boolean",

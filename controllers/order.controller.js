@@ -9,7 +9,8 @@ import mongoose from "mongoose";
 import { isValidObjectId, sanitizeInput, sanitizeForRegex } from "../utils/validators.js";
 import { analyticsService } from "../services/analyticsService.js";
 
-// Inventory Deductions
+// Inventory Deductions - Defines what inventory items are consumed during order status transitions
+// Each rule specifies: from_status -> to_status, inventory_category, quantity_used, and reason for logging
 const INVENTORY_TRANSITIONS = [
   {
     from: "processing",
@@ -35,6 +36,8 @@ const INVENTORY_TRANSITIONS = [
 ];
 
 // Deduct inventory for a given transition
+// Prevents double-deducting by checking existing stock logs
+// Updates inventory stock levels and logs the transaction
 const deductInventoryForTransition = async (oldStatus, newStatus, order, session, performed_by) => {
   const rule = INVENTORY_TRANSITIONS.find(
     (transition) => transition.from === oldStatus && transition.to === newStatus
@@ -121,6 +124,25 @@ const adjustEmployeeCompletedTasks = async (employeeId, delta, session) => {
 };
 
 // Create Order
+/**
+ * Creates a new laundry order with validation and inventory management
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Request body containing order data
+ * @param {string} req.body.customerId - Customer ID
+ * @param {string} req.body.branchId - Branch ID
+ * @param {string} req.body.customer_name - Customer name
+ * @param {string} req.body.customer_phone - Customer phone
+ * @param {string} req.body.service_type - Service type (wash_fold, ironing, etc.)
+ * @param {Array} req.body.items - Array of order items
+ * @param {string} req.body.pickup_date - Pickup date (ISO string)
+ * @param {string} [req.body.delivery_date] - Optional delivery date
+ * @param {string} [req.body.priority] - Priority level (normal, express, urgent)
+ * @param {number} [req.body.discount] - Discount amount
+ * @param {string} [req.body.payment_method] - Payment method
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<void>}
+ */
 export const createOrder = async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -128,6 +150,7 @@ export const createOrder = async (req, res, next) => {
     const {
       customerId, branchId, customer_name, customer_phone, service_type,
       items, pickup_date, delivery_date, priority, discount, assigned_employee,
+      payment_method,
     } = req.body;
 
     // Validate required fields
@@ -183,6 +206,12 @@ export const createOrder = async (req, res, next) => {
       return sendError(res, 400, "Invalid service type value");
     }
 
+    // Validate payment method enum
+    const valid_payment_methods = ['cash', 'card', 'pos', 'wallet'];
+    const effective_payment_method = valid_payment_methods.includes(payment_method?.toLowerCase())
+      ? payment_method.toLowerCase()
+      : 'cash';
+
     // Validate discount and amount
     const effective_discount = Math.max(0, Math.min(100, discount || 0));
 
@@ -203,6 +232,7 @@ export const createOrder = async (req, res, next) => {
       priority: effective_priority,
       discount: effective_discount,
       assigned_employee: assigned_employee && isValidObjectId(assigned_employee) ? assigned_employee : undefined,
+      payment_method: effective_payment_method,
       created_by: req.user.id || req.user._id,
       status: "pending",
       payment_status: "unpaid",

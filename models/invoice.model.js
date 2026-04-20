@@ -60,8 +60,8 @@ const invoiceSchema = new mongoose.Schema({
 
 // Indexes for faster queries
 invoiceSchema.index({ invoice_number: 1 });
-invoiceSchema.index({ customerId: 1, createdAt: -1 });
-invoiceSchema.index({ branchId: 1, createdAt: -1 });
+invoiceSchema.index({ customerId: 1, created_at: -1 });
+invoiceSchema.index({ branchId: 1, created_at: -1 });
 
 const Invoice = mongoose.model('Invoice', invoiceSchema);
 

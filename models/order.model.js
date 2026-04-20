@@ -1,34 +1,47 @@
 import mongoose from 'mongoose';
 import { customAlphabet } from 'nanoid';
 
+// Generate unique order numbers (e.g., ORD-ABC123-XYZ)
 const generateShortId = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 6);
 
+// Order Schema - Defines the structure for laundry orders
 const orderSchema = new mongoose.Schema({
+    // Unique order identifier with prefix
     order_number: {
         type: String,
         unique: true,
         index: true,
         default: () => `ORD-${generateShortId()}`,
     },
+
+    // Reference to the customer placing the order
     customerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },
+
+    // Branch where the order is processed
     branchId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Branch',
         required: true,
     },
+
+    // Employee assigned to handle this order
     assigned_employee: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Employee',
     },
+
+    // User who created the order
     created_by: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },
+
+    // Customer contact information (cached for performance)
     customer_name: {
         type: String,
         required: true,
@@ -37,6 +50,8 @@ const orderSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    
+    // Order items with type, quantity, and pricing
     items: [{
         item_type: {
             type: String,

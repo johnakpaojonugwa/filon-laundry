@@ -87,6 +87,26 @@ export const getInvoiceById = async (req, res, next) => {
     }
 };
 
+// Get Invoice by Order ID
+export const getInvoiceByOrderId = async (req, res, next) => {
+    try {
+        const { orderId } = req.params;
+        const invoice = await Invoice.findOne({ orderId })
+            .populate('customerId', 'fullname email phone')
+            .populate('branchId', 'name address phone branchCode');
+
+        if (!invoice) return sendError(res, 404, "Invoice not found");
+
+        if (req.user.role === 'customer' && invoice.customerId?._id.toString() !== req.user.id) {
+            return sendError(res, 403, "Access denied: This is not your invoice.");
+        }
+
+        return sendResponse(res, 200, true, "Invoice retrieved", invoice);
+    } catch (error) {
+        next(error);
+    }
+};
+
 // List Invoices (Scoped to User/Branch)
 export const getMyInvoices = async (req, res, next) => {
     try {

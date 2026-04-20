@@ -368,20 +368,20 @@ export const resetPassword = async (req, res, next) => {
 // Change Password (for logged-in users)
 export const changePassword = async (req, res, next) => {
     try {
-        const { currentPassword, newPassword, confirm_password } = req.body;
+        const { current_password, new_password, confirm_password } = req.body;
 
         // Validation
         const errors = [];
-        if (!currentPassword) {
+        if (!current_password) {
             errors.push("Current password is required");
         }
-        if (!newPassword || !isStrongPassword(newPassword)) {
+        if (!new_password || !isStrongPassword(new_password)) {
             errors.push("New password must be at least 8 characters with uppercase, number, and special character");
         }
-        if (newPassword !== confirm_password) {
+        if (new_password !== confirm_password) {
             errors.push("New passwords do not match");
         }
-        if (currentPassword === newPassword) {
+        if (current_password === new_password) {
             errors.push("New password must be different from current password");
         }
 
@@ -396,14 +396,14 @@ export const changePassword = async (req, res, next) => {
         }
 
         // Verify current password
-        const isMatch = await user.comparePassword(currentPassword);
+        const isMatch = await user.comparePassword(current_password);
         if (!isMatch) {
             logger.warn(`Failed password change attempt for user: ${user.email}`);
             return sendError(res, 401, "Current password is incorrect");
         }
 
         // Update password 
-        user.password = newPassword;
+        user.password = new_password;
         await user.save();
 
         logger.info(`Password changed successfully for user: ${user.email}`);
