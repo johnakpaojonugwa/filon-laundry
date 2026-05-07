@@ -4,10 +4,15 @@ import { body, validationResult } from 'express-validator';
 export const handleValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        // Format errors into a simple key-value object or array of messages
+        const formattedErrors = errors.array().map(err => ({
+            field: err.path,
+            message: err.msg
+        }));
         return res.status(400).json({
             success: false,
             message: "Validation failed",
-            errors: errors.array()
+            errors: formattedErrors
         });
     }
     next();
