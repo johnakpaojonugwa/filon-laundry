@@ -74,7 +74,9 @@ export const authorize = (...allowedRoles) => {
                 message: 'Authentication required'
             });
         }
-        if (!allowedRoles.includes(req.user.role)) {
+        const userRole = req.user.role?.toLowerCase();
+        const normalizedAllowedRoles = allowedRoles.map(role => role.toLowerCase());
+        if (!normalizedAllowedRoles.includes(userRole)) {
             logger.warn('Unauthorized access attempt', {
                 userId: req.user.id,
                 userRole: req.user.role,

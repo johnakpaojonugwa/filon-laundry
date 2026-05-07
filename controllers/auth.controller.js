@@ -35,9 +35,8 @@ export const register = async (req, res, next) => {
     try {
         const { fullname, email, phone_number, password, confirm_password, role, branchId } = req.body || {};
 
-        // Role Guard
-        const publicRoles = ['customer']; 
-        const assignedRole = publicRoles.includes(role?.toUpperCase()) ? role.toUpperCase() : 'customer';
+        // Role Guard - only allow customer role during public registration
+        const assignedRole = 'customer';
 
         const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
